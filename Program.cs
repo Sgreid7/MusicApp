@@ -1,6 +1,8 @@
 ﻿using System;
 using MusicApp.Models;
 using System.Linq;
+using ConsoleTools;
+
 
 namespace MusicApp
 {
@@ -31,17 +33,47 @@ namespace MusicApp
       }
     }
 
+    // SHOW ALL SIGNED BANDS
     static void ShowSignedBands()
     {
-      // var db = new DatabaseContext();
+      var db = new DatabaseContext();
+      var bands = db.Bands.Where(b => b.isSigned).OrderBy(b => b.Name);
+      Console.WriteLine("Here are our current signed bands:");
+      foreach (var band in bands)
+      {
+        Console.WriteLine("-----------------------------------");
+        Console.WriteLine($"Primary Key: {band.Id}");
+        Console.WriteLine($"Name: {band.Name}");
+        Console.WriteLine($"Country: {band.CountryOfOrigin}");
+        Console.WriteLine($"Number of members: {band.NumberOfMembers}");
+        Console.WriteLine($"Style: {band.Style}");
+        Console.WriteLine("-----------------------------------");
+      }
+    }
 
+    // SHOW ALL BANDS NOT SIGNED
+    static void ShowUnsignedBands()
+    {
+      var db = new DatabaseContext();
+      var bands = db.Bands.Where(b => !b.isSigned).OrderBy(b => b.Name);
+      Console.WriteLine("Here are all the unsigned bands:");
+      foreach (var band in bands)
+      {
+        Console.WriteLine("-----------------------------------");
+        Console.WriteLine($"Primary Key: {band.Id}");
+        Console.WriteLine($"Name: {band.Name}");
+        Console.WriteLine($"Country: {band.CountryOfOrigin}");
+        Console.WriteLine($"Number of members: {band.NumberOfMembers}");
+        Console.WriteLine($"Style: {band.Style}");
+        Console.WriteLine("-----------------------------------");
+      }
     }
 
     // SHOW ALBUMS
     static void ShowBandAlbums(int bandId)
     {
       var db = new DatabaseContext();
-      var albums = db.Albums.OrderBy(a => a.Title);
+      var albums = db.Albums.Where(a => a.BandId == bandId).OrderBy(a => a.Title);
       foreach (var album in albums)
       {
         Console.WriteLine("-----------------------------------");
@@ -57,7 +89,7 @@ namespace MusicApp
     static void ShowAlbumSongs(int albumId)
     {
       var db = new DatabaseContext();
-      var songs = db.Songs.OrderBy(s => s.Title);
+      var songs = db.Songs.Where(s => s.AlbumId == albumId).OrderBy(s => s.Title);
       foreach (var song in songs)
       {
         Console.WriteLine("-----------------------------------");
@@ -103,10 +135,28 @@ namespace MusicApp
         Console.WriteLine("(VIEW 'v') albums for a band, (VIEW 'a') all albums, (VIEW 'x') an album's songs");
         Console.WriteLine("(VIEW 'b') signed bands, (VIEW 'n') bands not signed, or (QUIT 'q')");
 
+
+        // var menu = new ConsoleMenu(args, level: 0)
+        // .Add("Sign a band", () => SomeAction("One"))
+        // .Add("Produce an album", () => SomeAction("Two"))
+        // .Add("Let go of a band", () => SomeAction("Three"))
+        // .Add("re-sign a band", subMenu.Show)
+        // .Add("Close", ConsoleMenu.Close)
+        // .Add("Action then Close", (thisMenu) => { SomeAction("Closing action..."); thisMenu.CloseMenu(); })
+        // .Add("Exit", () => Environment.Exit(0))
+        // .Configure(config =>
+        // {
+        //   config.Selector = "--> ";
+        //   config.EnableFilter = true;
+        //   config.Title = "Main menu";
+        //   config.EnableWriteTitle = true;
+        //   config.EnableBreadcrumb = true;
+        // });
+
         // Get the user input
         var input = Console.ReadLine().ToLower();
         // VALIDATE THE USER INPUT TO MAKE SURE IT'S A VALID INPUT
-        while (input != "s" && input != "p" && input != "l" && input != "r" && input != "v" && input != "a" && input != "s" && input != "b" && input != "n" && input != "q")
+        while (input != "s" && input != "p" && input != "l" && input != "r" && input != "v" && input != "a" && input != "x" && input != "b" && input != "n" && input != "q")
         {
           Console.WriteLine("That is not a valid input, please try again.");
           input = Console.ReadLine().ToLower();
@@ -178,25 +228,35 @@ namespace MusicApp
             // Show bands to user
             ShowBands();
             int bandSelected;
-            int.TryParse(Console.ReadLine(), out bandSelected);
+            var isInt = int.TryParse(Console.ReadLine(), out bandSelected);
             // Validate that band exists in database
-            while (!db.Bands.Any(b => b.Id == bandSelected))
+            while (!db.Bands.Any(b => b.Id == bandSelected) && !isInt)
             {
-              Console.WriteLine("That band does not exist in the database, please try again.");
+              Console.WriteLine("Invalid input, please try again.");
               int.TryParse(Console.ReadLine(), out bandSelected);
             }
             Console.WriteLine("Enter the name of the new album:");
             var newAlbum = Console.ReadLine();
             // Add space
             System.Console.WriteLine();
-            Console.WriteLine("Is this album explicit?");
+            Console.WriteLine("Is this album explicit? (TRUE) or (FALSE)");
             bool answer;
-            Boolean.TryParse(Console.ReadLine(), out answer);
+            var isBool = Boolean.TryParse(Console.ReadLine(), out answer);
+            while (!isBool)
+            {
+              Console.WriteLine("Not a valid input, please try again.");
+              isBool = Boolean.TryParse(Console.ReadLine(), out answer);
+            }
             // Add space
             System.Console.WriteLine();
             Console.WriteLine("When was this album released?");
             DateTime releaseDate;
-            DateTime.TryParse(Console.ReadLine(), out releaseDate);
+            var isDate = DateTime.TryParse(Console.ReadLine(), out releaseDate);
+            while (!isDate)
+            {
+              Console.WriteLine("Not a valid input, please try again.");
+              isDate = DateTime.TryParse(Console.ReadLine(), out releaseDate);
+            }
             // Add space
             System.Console.WriteLine();
             // Create album with info above
@@ -231,11 +291,11 @@ namespace MusicApp
                 Console.WriteLine("What album would you like to add this song to? Please choose the ID.");
                 ShowBandAlbums(bandSelected);
                 int albumSelected;
-                int.TryParse(Console.ReadLine(), out albumSelected);
+                var isValid = int.TryParse(Console.ReadLine(), out albumSelected);
                 // Check if album exists in database 
-                while (!db.Albums.Any(a => a.Id == albumSelected))
+                while (!db.Albums.Any(a => a.Id == albumSelected) && !isValid)
                 {
-                  Console.WriteLine("That album does not exist, please try again.");
+                  Console.WriteLine("That album does not exist or invalid input, please try again.");
                   int.TryParse(Console.ReadLine(), out albumSelected);
                 }
                 // once album is found, gather info for the song
@@ -250,13 +310,25 @@ namespace MusicApp
                 Console.WriteLine("How long is this song?");
                 Console.WriteLine("Hours?");
                 int hours;
-                int.TryParse(Console.ReadLine(), out hours);
+                var isHour = int.TryParse(Console.ReadLine(), out hours);
+                while (!isHour)
+                {
+                  Console.WriteLine("Not a valid input, please try again.");
+                }
                 Console.WriteLine("Minutes?");
                 int minutes;
-                int.TryParse(Console.ReadLine(), out minutes);
+                var isMinute = int.TryParse(Console.ReadLine(), out minutes);
+                while (!isMinute)
+                {
+                  Console.WriteLine("Not a valid input, please try again.");
+                }
                 Console.WriteLine("Seconds?");
                 int seconds;
-                int.TryParse(Console.ReadLine(), out seconds);
+                var isSecond = int.TryParse(Console.ReadLine(), out seconds);
+                while (!isSecond)
+                {
+                  Console.WriteLine("Not a valid input, please try again.");
+                }
                 var songLength = CreateTimeSpan(hours, minutes, seconds);
                 // Add space
                 System.Console.WriteLine();
@@ -289,9 +361,9 @@ namespace MusicApp
             // Show bands to user
             ShowBands();
             int bandRemove;
-            int.TryParse(Console.ReadLine(), out bandRemove);
+            var exist = int.TryParse(Console.ReadLine(), out bandRemove);
             // make sure band exists
-            while (!db.Bands.Any(b => b.Id == bandRemove))
+            while (!db.Bands.Any(b => b.Id == bandRemove) && !exist)
             {
               Console.WriteLine("Band does not exist, please try again.");
               int.TryParse(Console.ReadLine(), out bandRemove);
@@ -307,9 +379,9 @@ namespace MusicApp
             // Show user the bands
             ShowBands();
             int resignBand;
-            int.TryParse(Console.ReadLine(), out resignBand);
+            exist = int.TryParse(Console.ReadLine(), out resignBand);
             // make sure band exists
-            while (!db.Bands.Any(b => b.Id == resignBand))
+            while (!db.Bands.Any(b => b.Id == resignBand) && !exist)
             {
               Console.WriteLine("Band does not exist, please try again.");
               int.TryParse(Console.ReadLine(), out resignBand);
@@ -323,9 +395,11 @@ namespace MusicApp
           // * * * * * VIEW albums for a selected band 
           case "v":
             Console.WriteLine("Which band's albums would you like to view? Please select the band ID.");
+            // Show user the bands
+            ShowBands();
             int viewBand;
-            int.TryParse(Console.ReadLine(), out viewBand);
-            while (!db.Bands.Any(b => b.Id == viewBand))
+            exist = int.TryParse(Console.ReadLine(), out viewBand);
+            while (!db.Bands.Any(b => b.Id == viewBand) && !exist)
             {
               Console.WriteLine("Band does not exist, please try again.");
               int.TryParse(Console.ReadLine(), out viewBand);
@@ -341,10 +415,11 @@ namespace MusicApp
           // * * * * * VIEW an albums songs
           case "x":
             Console.WriteLine("Which album's songs would you like to view? Please select the album ID.");
+            ShowAllAlbums();
             int albumChosen;
-            int.TryParse(Console.ReadLine(), out albumChosen);
+            exist = int.TryParse(Console.ReadLine(), out albumChosen);
             // validate that album exists
-            while (!db.Albums.Any(a => a.Id == albumChosen))
+            while (!db.Albums.Any(a => a.Id == albumChosen) && !exist)
             {
               Console.WriteLine("Album does not exist, please try again.");
               int.TryParse(Console.ReadLine(), out albumChosen);
@@ -354,8 +429,14 @@ namespace MusicApp
 
           // * * * * * VIEW signed bands
           case "b":
+            ShowSignedBands();
+            break;
 
 
+          // * * * * * VIEW unsigned bands
+          case "n":
+            ShowUnsignedBands();
+            break;
 
           // * * * * * QUIT
           case "q":
