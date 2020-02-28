@@ -2,7 +2,7 @@
 using MusicApp.Models;
 using System.Linq;
 using ConsoleTools;
-
+using System.Collections.Generic;
 
 namespace MusicApp
 {
@@ -15,116 +15,18 @@ namespace MusicApp
       return songLength;
     }
 
-    // SHOW BANDS 
-    static void ShowBands()
-    {
-      var db = new DatabaseContext();
-      var bands = db.Bands.OrderBy(b => b.Name);
-      foreach (var band in bands)
-      {
-        Console.WriteLine("-----------------------------------");
-        Console.WriteLine($"Primary Key: {band.Id}");
-        Console.WriteLine($"Name: {band.Name}");
-        Console.WriteLine($"Country: {band.CountryOfOrigin}");
-        Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Style: {band.Style}");
-        Console.WriteLine($"Signed: {band.isSigned}");
-        Console.WriteLine("-----------------------------------");
-      }
-    }
-
-    // SHOW ALL SIGNED BANDS
-    static void ShowSignedBands()
-    {
-      var db = new DatabaseContext();
-      var bands = db.Bands.Where(b => b.isSigned).OrderBy(b => b.Name);
-      Console.WriteLine("Here are our current signed bands:");
-      foreach (var band in bands)
-      {
-        Console.WriteLine("-----------------------------------");
-        Console.WriteLine($"Primary Key: {band.Id}");
-        Console.WriteLine($"Name: {band.Name}");
-        Console.WriteLine($"Country: {band.CountryOfOrigin}");
-        Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Style: {band.Style}");
-        Console.WriteLine("-----------------------------------");
-      }
-    }
-
-    // SHOW ALL BANDS NOT SIGNED
-    static void ShowUnsignedBands()
-    {
-      var db = new DatabaseContext();
-      var bands = db.Bands.Where(b => !b.isSigned).OrderBy(b => b.Name);
-      Console.WriteLine("Here are all the unsigned bands:");
-      foreach (var band in bands)
-      {
-        Console.WriteLine("-----------------------------------");
-        Console.WriteLine($"Primary Key: {band.Id}");
-        Console.WriteLine($"Name: {band.Name}");
-        Console.WriteLine($"Country: {band.CountryOfOrigin}");
-        Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Style: {band.Style}");
-        Console.WriteLine("-----------------------------------");
-      }
-    }
-
-    // SHOW ALBUMS
-    static void ShowBandAlbums(int bandId)
-    {
-      var db = new DatabaseContext();
-      var albums = db.Albums.Where(a => a.BandId == bandId).OrderBy(a => a.Title);
-      foreach (var album in albums)
-      {
-        Console.WriteLine("-----------------------------------");
-        Console.WriteLine($"Primary Key: {album.Id}");
-        Console.WriteLine($"Title: {album.Title}");
-        Console.WriteLine($"Is explicit: {album.IsExplicit}");
-        Console.WriteLine($"Release date: {album.ReleaseDate.ToString("MM/dd/yyyy")}");
-        Console.WriteLine("-----------------------------------");
-      }
-    }
-
-    // SHOW SONGS FROM AN ALBUM
-    static void ShowAlbumSongs(int albumId)
-    {
-      var db = new DatabaseContext();
-      var songs = db.Songs.Where(s => s.AlbumId == albumId).OrderBy(s => s.Title);
-      foreach (var song in songs)
-      {
-        Console.WriteLine("-----------------------------------");
-        Console.WriteLine($"Primary Key: {song.Id}");
-        Console.WriteLine($"Title: {song.Title}");
-        Console.WriteLine($"Length: {song.Length}");
-        Console.WriteLine($"Genre: {song.Genre}");
-        Console.WriteLine("-----------------------------------");
-      }
-    }
-    // SHOW ALL ALBUMS
-    static void ShowAllAlbums()
-    {
-      var db = new DatabaseContext();
-      var albums = db.Albums.OrderBy(a => a.ReleaseDate);
-      foreach (var a in albums)
-      {
-        Console.WriteLine("-----------------------------------");
-        Console.WriteLine($"Primary Key: {a.Id}");
-        Console.WriteLine($"Title: {a.Title}");
-        Console.WriteLine($"Is explicit: {a.IsExplicit}");
-        Console.WriteLine($"Release date: {a.ReleaseDate.ToString("MM/dd/yyyy")}");
-        Console.WriteLine("-----------------------------------");
-      }
-    }
     static void Main(string[] args)
     {
       // CONNECT TO DATABASE
       var db = new DatabaseContext();
       // Create an isRunning variable for program while loop
       var isRunning = true;
+      // Create reference to the record label manager class
+      var rlManager = new RecordLabelManager();
       // Greet user
-      Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      Console.WriteLine("Welcome to 3DOT Recordings!");
-      Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+      Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+      Console.WriteLine("Welcome to Infinity Records!");
+      Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
       System.Console.WriteLine();
 
       while (isRunning)
@@ -135,12 +37,27 @@ namespace MusicApp
         Console.WriteLine("(VIEW 'v') albums for a band, (VIEW 'a') all albums, (VIEW 'x') an album's songs");
         Console.WriteLine("(VIEW 'b') signed bands, (VIEW 'n') bands not signed, or (QUIT 'q')");
 
+        // var subMenu = new ConsoleMenu(args, level: 1)
+        // .Add("Sub_One", () => SomeAction("Sub_One"))
+        // .Add("Sub_Two", () => SomeAction("Sub_Two"))
+        // .Add("Sub_Three", () => SomeAction("Sub_Three"))
+        // .Add("Sub_Four", () => SomeAction("Sub_Four"))
+        // .Add("Sub_Close", ConsoleMenu.Close)
+        // .Add("Sub_Exit", () => Environment.Exit(0))
+        // .Configure(config =>
+        // {
+        //   config.Selector = "--> ";
+        //   config.EnableFilter = true;
+        //   config.Title = "Submenu";
+        //   config.EnableBreadcrumb = true;
+        //   config.WriteBreadcrumbAction = titles => Console.WriteLine(string.Join(" / ", titles));
+        // });
 
         // var menu = new ConsoleMenu(args, level: 0)
         // .Add("Sign a band", () => SomeAction("One"))
         // .Add("Produce an album", () => SomeAction("Two"))
         // .Add("Let go of a band", () => SomeAction("Three"))
-        // .Add("re-sign a band", subMenu.Show)
+        // .Add("Re-sign a band", subMenu.Show)
         // .Add("Close", ConsoleMenu.Close)
         // .Add("Action then Close", (thisMenu) => { SomeAction("Closing action..."); thisMenu.CloseMenu(); })
         // .Add("Exit", () => Environment.Exit(0))
@@ -152,6 +69,8 @@ namespace MusicApp
         //   config.EnableWriteTitle = true;
         //   config.EnableBreadcrumb = true;
         // });
+
+
 
         // Get the user input
         var input = Console.ReadLine().ToLower();
@@ -170,7 +89,7 @@ namespace MusicApp
           case "s":
             // Get band name
             Console.WriteLine("What band would you like to sign to our label?");
-            var bandName = Console.ReadLine();
+            var name = Console.ReadLine();
             // Add space
             System.Console.WriteLine();
             // Get bands country
@@ -204,21 +123,7 @@ namespace MusicApp
             // Add space
             System.Console.WriteLine();
             // Create that band with variables above
-            var band = new Band()
-            {
-              Name = bandName,
-              CountryOfOrigin = origin,
-              NumberOfMembers = members,
-              Website = website,
-              Style = genre,
-              isSigned = true,
-              PersonOfContact = manager,
-              ContactPhoneNumber = phoneNumber
-            };
-            // Add band to database
-            db.Bands.Add(band);
-            // Save changes
-            db.SaveChanges();
+            rlManager.AddBandToDb(name, origin, members, website, genre, manager, phoneNumber);
             break;
 
           case "p":
@@ -226,7 +131,7 @@ namespace MusicApp
             // Ask which band album is for
             Console.WriteLine("Which band is this album for? Please choose the ID.");
             // Show bands to user
-            ShowBands();
+            rlManager.ShowBands();
             int bandSelected;
             var isInt = int.TryParse(Console.ReadLine(), out bandSelected);
             // Validate that band exists in database
@@ -260,46 +165,25 @@ namespace MusicApp
             // Add space
             System.Console.WriteLine();
             // Create album with info above
-            var album = new Album()
-            {
-              Title = newAlbum,
-              IsExplicit = answer,
-              ReleaseDate = releaseDate,
-              BandId = bandSelected
-            };
-            // Add album to database
-            db.Albums.Add(album);
-            db.SaveChanges();
 
-
-            Console.WriteLine("Would you like to add a song to an album? (YES 'y') or (NO 'n')");
-            var userInput = Console.ReadLine().ToLower();
-            // validate answer
-            while (userInput != "y" && userInput != "n")
-            {
-              Console.WriteLine("Not a valid input, please try again.");
-              userInput = Console.ReadLine().ToLower();
-            }
+            var newSongs = new List<Song>();
             var addingSongs = true;
             // Create a while loop so they can continue adding songs to album until user chooses to stop
             while (addingSongs)
             {
+              Console.WriteLine("Would you like to add a song to this album? (YES 'y') or (NO 'n')");
+              var userInput = Console.ReadLine().ToLower();
+              // validate answer
+              while (userInput != "y" && userInput != "n")
+              {
+                Console.WriteLine("Not a valid input, please try again.");
+                userInput = Console.ReadLine().ToLower();
+              }
               if (userInput == "y")
               {
                 // Get info from user for a song to add to that album
-                // Figure out which album to add song to
-                Console.WriteLine("What album would you like to add this song to? Please choose the ID.");
-                ShowBandAlbums(bandSelected);
-                int albumSelected;
-                var isValid = int.TryParse(Console.ReadLine(), out albumSelected);
-                // Check if album exists in database 
-                while (!db.Albums.Any(a => a.Id == albumSelected) && !isValid)
-                {
-                  Console.WriteLine("That album does not exist or invalid input, please try again.");
-                  int.TryParse(Console.ReadLine(), out albumSelected);
-                }
                 // once album is found, gather info for the song
-                Console.WriteLine("What is the song name for this album?");
+                Console.WriteLine("What is the song name?");
                 var songName = Console.ReadLine();
                 // Add space
                 System.Console.WriteLine();
@@ -314,6 +198,7 @@ namespace MusicApp
                 while (!isHour)
                 {
                   Console.WriteLine("Not a valid input, please try again.");
+                  isHour = int.TryParse(Console.ReadLine(), out hours);
                 }
                 Console.WriteLine("Minutes?");
                 int minutes;
@@ -321,6 +206,7 @@ namespace MusicApp
                 while (!isMinute)
                 {
                   Console.WriteLine("Not a valid input, please try again.");
+                  isMinute = int.TryParse(Console.ReadLine(), out minutes);
                 }
                 Console.WriteLine("Seconds?");
                 int seconds;
@@ -328,6 +214,7 @@ namespace MusicApp
                 while (!isSecond)
                 {
                   Console.WriteLine("Not a valid input, please try again.");
+                  isSecond = int.TryParse(Console.ReadLine(), out seconds);
                 }
                 var songLength = CreateTimeSpan(hours, minutes, seconds);
                 // Add space
@@ -336,30 +223,24 @@ namespace MusicApp
                 var songGenre = Console.ReadLine();
                 // Add space
                 System.Console.WriteLine();
-                var song = new Song()
-                {
-                  Title = songName,
-                  Lyrics = lyrics,
-                  Length = songLength,
-                  Genre = songGenre,
-                  AlbumId = albumSelected
-                };
-                // Add song to songs table
-                db.Songs.Add(song);
-                db.SaveChanges();
+                var createdSong = rlManager.CreateSong(songName, lyrics, songLength, songGenre);
+                newSongs.Add(createdSong);
               }
               else
               {
                 addingSongs = false;
+                // Add space
+                Console.WriteLine();
               }
             }
+            rlManager.ProduceAlbum(newAlbum, answer, releaseDate, bandSelected, newSongs);
             break;
 
           // Let go of a band
           case "l":
-            Console.WriteLine("Which band should we release from 3DOT Recordings? Please select the ID.");
+            Console.WriteLine("Which band should we release from Infinity Records? Please select the ID.");
             // Show bands to user
-            ShowBands();
+            rlManager.ShowBands();
             int bandRemove;
             var exist = int.TryParse(Console.ReadLine(), out bandRemove);
             // make sure band exists
@@ -377,7 +258,7 @@ namespace MusicApp
           case "r":
             Console.WriteLine("Which band should we resign? Please select the ID.");
             // Show user the bands
-            ShowBands();
+            rlManager.ShowBands();
             int resignBand;
             exist = int.TryParse(Console.ReadLine(), out resignBand);
             // make sure band exists
@@ -396,7 +277,7 @@ namespace MusicApp
           case "v":
             Console.WriteLine("Which band's albums would you like to view? Please select the band ID.");
             // Show user the bands
-            ShowBands();
+            rlManager.ShowBands();
             int viewBand;
             exist = int.TryParse(Console.ReadLine(), out viewBand);
             while (!db.Bands.Any(b => b.Id == viewBand) && !exist)
@@ -404,18 +285,18 @@ namespace MusicApp
               Console.WriteLine("Band does not exist, please try again.");
               int.TryParse(Console.ReadLine(), out viewBand);
             }
-            ShowBandAlbums(viewBand);
+            rlManager.ShowBandAlbums(viewBand);
             break;
 
           // * * * * * VIEW ALL ALBUMS FROM ALL BANDS
           case "a":
-            ShowAllAlbums();
+            rlManager.ShowAllAlbums();
             break;
 
           // * * * * * VIEW an albums songs
           case "x":
             Console.WriteLine("Which album's songs would you like to view? Please select the album ID.");
-            ShowAllAlbums();
+            rlManager.ShowAllAlbums();
             int albumChosen;
             exist = int.TryParse(Console.ReadLine(), out albumChosen);
             // validate that album exists
@@ -424,30 +305,26 @@ namespace MusicApp
               Console.WriteLine("Album does not exist, please try again.");
               int.TryParse(Console.ReadLine(), out albumChosen);
             }
-            ShowAlbumSongs(albumChosen);
+            rlManager.ShowAlbumSongs(albumChosen);
             break;
 
           // * * * * * VIEW signed bands
           case "b":
-            ShowSignedBands();
+            rlManager.ShowSignedBands();
             break;
-
 
           // * * * * * VIEW unsigned bands
           case "n":
-            ShowUnsignedBands();
+            rlManager.ShowUnsignedBands();
             break;
 
           // * * * * * QUIT
           case "q":
-            Console.WriteLine("Thanks for stopping by 3DOT Recordings today!");
+            Console.WriteLine("Thanks for stopping by Infinity Records today!");
             isRunning = false;
             break;
-
         }
-
       }
-
     }
   }
 }
