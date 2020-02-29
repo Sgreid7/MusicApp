@@ -151,6 +151,7 @@ namespace MusicApp.Models
         Console.WriteLine($"Release date: {a.ReleaseDate.ToString("MM/dd/yyyy")}");
         Console.WriteLine("-----------------------------------");
       }
+      Console.ReadKey();
     }
 
     // ******** CREATE SONG **********
@@ -164,11 +165,9 @@ namespace MusicApp.Models
         Length = songLength,
         Genre = songGenre
       };
-      // Add song to songs table
-      //   db.Songs.Add(song);
-      //   db.SaveChanges();
-
     }
+
+    // OLD SWITCH STATEMENT CASES
 
 
   }
