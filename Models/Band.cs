@@ -15,8 +15,6 @@ namespace MusicApp.Models
 
     public string Website { get; set; }
 
-    public string Style { get; set; }
-
     public bool isSigned { get; set; }
 
     public string PersonOfContact { get; set; }
@@ -25,6 +23,8 @@ namespace MusicApp.Models
 
     // NAVIGATION PROPERTIES
     public List<Album> Albums { get; set; }
+
+    public List<Style> Styles { get; set; }
 
   }
 }

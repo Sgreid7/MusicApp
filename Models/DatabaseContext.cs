@@ -16,6 +16,16 @@ namespace MusicApp.Models
 
     public DbSet<Musician> Musicians { get; set; }
 
+    public DbSet<BandMusicians> BandMusicians { get; set; }
+
+    public DbSet<SongGenre> SongGenres { get; set; }
+
+    public DbSet<Genre> Genres { get; set; }
+
+    public DbSet<Style> Styles { get; set; }
+
+    public DbSet<BandStyles> BandStyles { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

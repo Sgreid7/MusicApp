@@ -8,13 +8,12 @@ namespace MusicApp.Models
 {
   public class RecordLabelManager
   {
-    // public DatabaseContext db { get; set; } = new DatabaseContext();
+    public DatabaseContext db { get; set; } = new DatabaseContext();
     // ********** BANDS ************
     // CREATE BAND METHODS HERE TO CALL IN PROGRAM
     // SHOW BANDS 
     public void ShowBands()
     {
-      var db = new DatabaseContext();
       var bands = db.Bands.OrderBy(b => b.Name);
       foreach (var band in bands)
       {
@@ -23,7 +22,7 @@ namespace MusicApp.Models
         Console.WriteLine($"Name: {band.Name}");
         Console.WriteLine($"Country: {band.CountryOfOrigin}");
         Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Style: {band.Style}");
+        Console.WriteLine($"Styles: {band.Styles}");
         Console.WriteLine($"Signed: {band.isSigned}");
         Console.WriteLine("-----------------------------------");
       }
@@ -32,7 +31,6 @@ namespace MusicApp.Models
     // SHOW ALL SIGNED BANDS
     public void ShowSignedBands()
     {
-      var db = new DatabaseContext();
       var bands = db.Bands.Where(b => b.isSigned).OrderBy(b => b.Name);
       Console.WriteLine("Here are our current signed bands:");
       foreach (var band in bands)
@@ -42,7 +40,7 @@ namespace MusicApp.Models
         Console.WriteLine($"Name: {band.Name}");
         Console.WriteLine($"Country: {band.CountryOfOrigin}");
         Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Style: {band.Style}");
+        Console.WriteLine($"Styles: {band.Styles}");
         Console.WriteLine("-----------------------------------");
       }
     }
@@ -50,7 +48,6 @@ namespace MusicApp.Models
     // SHOW ALL BANDS NOT SIGNED
     public void ShowUnsignedBands()
     {
-      var db = new DatabaseContext();
       var bands = db.Bands.Where(b => !b.isSigned).OrderBy(b => b.Name);
       Console.WriteLine("Here are all the unsigned bands:");
       foreach (var band in bands)
@@ -60,22 +57,21 @@ namespace MusicApp.Models
         Console.WriteLine($"Name: {band.Name}");
         Console.WriteLine($"Country: {band.CountryOfOrigin}");
         Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Style: {band.Style}");
+        Console.WriteLine($"Styles: {band.Styles}");
         Console.WriteLine("-----------------------------------");
       }
     }
 
     // ADD BAND TO DATABASE
-    public void AddBandToDb(string name, string origin, string members, string website, string genre, string manager, string phoneNumber)
+    public void AddBandToDb(string name, string origin, string members, string website, List<Style> styles, string manager, string phoneNumber)
     {
-      var db = new DatabaseContext();
       var band = new Band()
       {
         Name = name,
         CountryOfOrigin = origin,
         NumberOfMembers = members,
         Website = website,
-        Style = genre,
+        Styles = styles,
         isSigned = true,
         PersonOfContact = manager,
         ContactPhoneNumber = phoneNumber
@@ -86,29 +82,43 @@ namespace MusicApp.Models
       db.SaveChanges();
     }
 
+    // ADD SONG TO DATABASE
+    public int AddSongToDb(int albumId, string title, string lyrics, TimeSpan length)
+    {
+      var album = db.Albums.First(album => album.Id == albumId);
+      var songToAdd = new Song()
+      {
+        Title = title,
+        Lyrics = lyrics,
+        Length = length
+      };
+      album.Songs.Add(songToAdd);
+      db.SaveChanges();
+      return songToAdd.Id;
+    }
+
     // ************ ALBUMS **************
     // CREATE ALBUM METHODS HERE TO CALL IN PROGRAM
     // PRODUCE AN ALBUM (CREATE)
-    public void ProduceAlbum(string newAlbum, bool answer, DateTime releaseDate, int bandSelected, List<Song> newSongs)
+    public int ProduceAlbum(string albumTitle, bool answer, DateTime releaseDate, int bandSelected)
     {
-      var db = new DatabaseContext();
+      var band = db.Bands.First(b => b.Id == bandSelected);
       // Create album with info above
-      var album = new Album()
+      var albumToAdd = new Album()
       {
-        Title = newAlbum,
+        Title = albumTitle,
         IsExplicit = answer,
-        ReleaseDate = releaseDate,
-        BandId = bandSelected,
-        Songs = newSongs
+        ReleaseDate = releaseDate
       };
       // Add album to database
-      db.Albums.Add(album);
+      band.Albums.Add(albumToAdd);
       db.SaveChanges();
+
+      return albumToAdd.Id;
     }
     // SHOW ALBUMS FOR A BAND
     public void ShowBandAlbums(int bandId)
     {
-      var db = new DatabaseContext();
       var albums = db.Albums.Where(a => a.BandId == bandId).OrderBy(a => a.Title);
       foreach (var album in albums)
       {
@@ -124,15 +134,14 @@ namespace MusicApp.Models
     // SHOW SONGS FROM AN ALBUM
     public void ShowAlbumSongs(int albumId)
     {
-      var db = new DatabaseContext();
       var songs = db.Songs.Where(s => s.AlbumId == albumId).OrderBy(s => s.Title);
       foreach (var song in songs)
       {
         Console.WriteLine("-----------------------------------");
         Console.WriteLine($"Primary Key: {song.Id}");
         Console.WriteLine($"Title: {song.Title}");
+        Console.WriteLine($"Lyrics: {song.Lyrics}");
         Console.WriteLine($"Length: {song.Length}");
-        Console.WriteLine($"Genre: {song.Genre}");
         Console.WriteLine("-----------------------------------");
       }
     }
@@ -140,7 +149,6 @@ namespace MusicApp.Models
     // SHOW ALL ALBUMS
     public void ShowAllAlbums()
     {
-      var db = new DatabaseContext();
       var albums = db.Albums.OrderBy(a => a.ReleaseDate);
       foreach (var a in albums)
       {
@@ -155,19 +163,22 @@ namespace MusicApp.Models
     }
 
     // ******** CREATE SONG **********
-    public Song CreateSong(string songName, string lyrics, TimeSpan songLength, string songGenre)
-    {
-      var db = new DatabaseContext();
-      return new Song()
-      {
-        Title = songName,
-        Lyrics = lyrics,
-        Length = songLength,
-        Genre = songGenre
-      };
-    }
+    // public int CreateSong(string songName, string lyrics, TimeSpan songLength, int albumId)
+    // {
+    //   var db = new DatabaseContext();
+    //   var songToAdd = new Song()
+    //   {
+    //     Title = songName,
+    //     Lyrics = lyrics,
+    //     Length = songLength,
+    //     AlbumId = albumId
+    //   };
 
-    // OLD SWITCH STATEMENT CASES
+    //   db.Albums.Songs.Add(songToAdd);
+    //   db.SaveChanges();
+    //   return songToAdd.Id;
+    // }
+
 
 
   }

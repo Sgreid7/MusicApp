@@ -13,7 +13,7 @@ namespace MusicApp.Models
 
     public TimeSpan Length { get; set; }
 
-    public string Genre { get; set; }
+    public List<SongGenre> SongGenres { get; set; }
 
     // NAVIGATION PROPERTIES
     public int AlbumId { get; set; }
