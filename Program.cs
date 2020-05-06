@@ -3,6 +3,7 @@ using MusicApp.Models;
 using System.Linq;
 using ConsoleTools;
 using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace MusicApp
 {
@@ -20,13 +21,42 @@ namespace MusicApp
 
     static void Main(string[] args)
     {
-      // Greet user
-      Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      Console.WriteLine("Welcome to Infinity Records!");
-      Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-      System.Console.WriteLine();
+      // * * * * * CREATE CONSOLE MENU * * * * *
+      var subMenu = new ConsoleMenu(args, level: 1)
+          .Add("View a band's albums", () => ViewBandAlbums())
+          .Add("View all albums", () => RLM.ShowAllAlbums())
+          .Add("View an album's songs", () => ViewAlbumSongs())
+          .Add("View all signed bands", () => RLM.ShowSignedBands())
+          .Add("View all unsigned bands", () => RLM.ShowUnsignedBands())
+          .Add("Sub_Close", ConsoleMenu.Close)
+          .Add("Sub_Exit", () => Environment.Exit(0))
+          .Configure(config =>
+          {
+            config.Selector = "==> ";
+            config.EnableFilter = false;
+            config.Title = "Submenu";
+            config.EnableBreadcrumb = true;
+            config.WriteBreadcrumbAction = titles => Console.WriteLine(string.Join(" / ", titles));
+          });
 
-      CreateMenu(args);
+      var menu = new ConsoleMenu(args, level: 0)
+      .Add("Sign a band", () => SignBand())
+      .Add("Produce an album", () => CreateAlbum())
+      .Add("Let go of a band", () => ReleaseBand())
+      .Add("Re-sign a band", () => ReSignBand())
+      .Add("VIEW other options", subMenu.Show)
+      .Add("Close", ConsoleMenu.Close)
+      .Add("Exit", () => Environment.Exit(0))
+      .Configure(config =>
+      {
+        config.Selector = "==> ";
+        config.EnableFilter = false;
+        config.Title = "Music App Menu";
+        config.EnableWriteTitle = true;
+        config.EnableBreadcrumb = true;
+      });
+
+      menu.Show();
     }
 
     // * * * * * SIGN A BAND * * * * *
@@ -216,8 +246,8 @@ namespace MusicApp
             {
               Console.WriteLine("What genre fits this song?");
               var genreName = Console.ReadLine();
-              // Check if genre exists or not
-              if (!db.Genres.Any(genre => genre.Name == genreName))
+              // Check if genre exists in database or not
+              if (!db.Genres.Any())
               {
                 var genreToAdd = new Genre()
                 {
@@ -232,6 +262,7 @@ namespace MusicApp
               // check if genre exists
               if (isGenre)
               {
+                // Set the genreId
                 genreId = db.Genres.First(genre => genre.Name == genreName).Id;
               }
               // else create it
@@ -267,8 +298,6 @@ namespace MusicApp
           addingSongs = false;
         }
       }
-      // Add space
-      Console.WriteLine();
       Console.WriteLine("Press any key to continue...");
       Console.ReadKey();
     }
@@ -345,7 +374,7 @@ namespace MusicApp
       int albumChosen;
       var exist = int.TryParse(Console.ReadLine(), out albumChosen);
       // validate that album exists
-      while (!db.Albums.Any(a => a.Id == albumChosen) && !exist)
+      while (!db.Albums.Any(a => a.Id == albumChosen))
       {
         Console.WriteLine("Album does not exist, please try again.");
         int.TryParse(Console.ReadLine(), out albumChosen);
@@ -353,47 +382,6 @@ namespace MusicApp
       RLM.ShowAlbumSongs(albumChosen);
       Console.WriteLine("Press any key to continue...");
       Console.ReadKey();
-    }
-
-    // * * * * * CREATE CONSOLE MENU * * * * *
-    static void CreateMenu(string[] args)
-    {
-      var subMenu = new ConsoleMenu(args, level: 1)
-          .Add("View a band's albums", () => ViewBandAlbums())
-          .Add("View all albums", () => RLM.ShowAllAlbums())
-          .Add("View an album's songs", () => ViewAlbumSongs())
-          .Add("View all signed bands", () => RLM.ShowSignedBands())
-          .Add("View all unsigned bands", () => RLM.ShowUnsignedBands())
-          .Add("Sub_Close", ConsoleMenu.Close)
-          .Add("Sub_Exit", () => Environment.Exit(0))
-          .Configure(config =>
-          {
-            config.Selector = "==> ";
-            config.EnableFilter = false;
-            config.Title = "Submenu";
-            config.EnableBreadcrumb = true;
-            config.WriteBreadcrumbAction = titles => Console.WriteLine(string.Join(" / ", titles));
-          });
-
-
-      var menu = new ConsoleMenu(args, level: 0)
-      .Add("Sign a band", () => SignBand())
-      .Add("Produce an album", () => CreateAlbum())
-      .Add("Let go of a band", () => ReleaseBand())
-      .Add("Re-sign a band", () => ReSignBand())
-      .Add("VIEW other options", subMenu.Show)
-      .Add("Close", ConsoleMenu.Close)
-      .Add("Exit", () => Environment.Exit(0))
-      .Configure(config =>
-      {
-        config.Selector = "==> ";
-        config.EnableFilter = false;
-        config.Title = "Music App Menu";
-        config.EnableWriteTitle = true;
-        config.EnableBreadcrumb = true;
-      });
-
-      menu.Show();
     }
   }
 }

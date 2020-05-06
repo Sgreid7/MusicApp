@@ -40,9 +40,10 @@ namespace MusicApp.Models
         Console.WriteLine($"Name: {band.Name}");
         Console.WriteLine($"Country: {band.CountryOfOrigin}");
         Console.WriteLine($"Number of members: {band.NumberOfMembers}");
-        Console.WriteLine($"Styles: {band.Styles}");
         Console.WriteLine("-----------------------------------");
       }
+      Console.WriteLine("Press any key to continue...");
+      Console.ReadKey();
     }
 
     // SHOW ALL BANDS NOT SIGNED
@@ -60,6 +61,8 @@ namespace MusicApp.Models
         Console.WriteLine($"Styles: {band.Styles}");
         Console.WriteLine("-----------------------------------");
       }
+      Console.WriteLine("Press any key to continue...");
+      Console.ReadKey();
     }
 
     // ADD BAND TO DATABASE
@@ -113,7 +116,6 @@ namespace MusicApp.Models
       // Add album to database
       band.Albums.Add(albumToAdd);
       db.SaveChanges();
-
       return albumToAdd.Id;
     }
     // SHOW ALBUMS FOR A BAND
@@ -159,27 +161,9 @@ namespace MusicApp.Models
         Console.WriteLine($"Release date: {a.ReleaseDate.ToString("MM/dd/yyyy")}");
         Console.WriteLine("-----------------------------------");
       }
+      Console.WriteLine("Press any key to continue...");
       Console.ReadKey();
     }
-
-    // ******** CREATE SONG **********
-    // public int CreateSong(string songName, string lyrics, TimeSpan songLength, int albumId)
-    // {
-    //   var db = new DatabaseContext();
-    //   var songToAdd = new Song()
-    //   {
-    //     Title = songName,
-    //     Lyrics = lyrics,
-    //     Length = songLength,
-    //     AlbumId = albumId
-    //   };
-
-    //   db.Albums.Songs.Add(songToAdd);
-    //   db.SaveChanges();
-    //   return songToAdd.Id;
-    // }
-
-
 
   }
 

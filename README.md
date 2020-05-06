@@ -1,25 +1,43 @@
-# Default Template for SDG .NET Course
+# Music Madness
 
-This is the default template for a simple .NET Core console app. This template has:
+A "record label" console app that stores our artist information in a database.
 
-- github integration
+# Objectives
 
-## To push to github
+- Create a console app that uses an ORM to talk to a database
+- Working with EF Core
+- Re-enforce SQL fundamentals
+- One to many relationships
+- Integrate 3rd party packages
 
-To create and push your current code to github, use the task `create-github`.
+# Includes
 
-How?
+- [C#](https://docs.microsoft.com/en-us/dotnet/csharp/)
+- [LINQ](https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/concepts/linq/)
+- [EF CORE](https://docs.microsoft.com/en-us/ef/core/)
+- [POSTGRESQL](https://www.postgresql.org/)
+- [CONSOLE MENU](https://www.nuget.org/packages/ConsoleMenu-simple/)
+- [MVC](https://dotnet.microsoft.com/apps/aspnet/mvc)
 
-1. Open your command pallette by using (Mac) `shift + cmd + p` or (Windows) `shift + ctrl + p`
-2. Search and Select `Tasks: Run Task`
-3. Select `create-github` from the dropdown
+# Featured Code
 
-This will create a new github repo, locally and up on github and also push your current code.
+## One to many relationship POCO
 
-## To turn in your assignment:
+```JSX
+public class Album
+  {
+    public int Id { get; set; }
 
-after you have created a github repo, completed your project and pushed your code, follow these instructions: https://suncoast.io/handbook/tools/assignment-turn-in/
+    public string Title { get; set; }
 
-## PROTIP:
+    public bool IsExplicit { get; set; }
 
-When you are complete with the project and have turned it in to your instructor, update this read me with details about the assignment.
+    public DateTime ReleaseDate { get; set; }
+
+    // NAVIGATION PROPERTIES
+    public int BandId { get; set; }
+
+    public Band Band { get; set; }
+    public List<Song> Songs = new List<Song>();
+  }
+```

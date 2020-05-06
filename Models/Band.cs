@@ -22,7 +22,7 @@ namespace MusicApp.Models
     public string ContactPhoneNumber { get; set; }
 
     // NAVIGATION PROPERTIES
-    public List<Album> Albums { get; set; }
+    public List<Album> Albums { get; set; } = new List<Album>();
 
     public List<Style> Styles { get; set; }
 

@@ -12,6 +12,6 @@ namespace MusicApp.Models
 
     public string Name { get; set; }
 
-    public List<SongGenre> SongGenres { get; set; }
+    public List<SongGenre> SongGenres { get; set; } = new List<SongGenre>();
   }
 }
