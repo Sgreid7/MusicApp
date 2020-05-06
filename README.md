@@ -1,4 +1,4 @@
-# Music Madness
+# Record Label
 
 A "record label" console app that stores our artist information in a database.
 
